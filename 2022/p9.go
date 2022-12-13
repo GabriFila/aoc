@@ -64,7 +64,7 @@ func main() {
 
 	fileScanner.Split(bufio.ScanLines)
 
-	fmt.Println("------------\n\n\n")
+	fmt.Print("------------\n\n\n")
 
 	lines := make([]string, 0)
 	hX := 0

@@ -3,15 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
-	"regexp"
 	"strconv"
 )
-
-var amountRgx = regexp.MustCompile(`(?m)move (\d+) from`)
-var fromRgx = regexp.MustCompile(`(?m)from (\d+) to`)
-var toRgx = regexp.MustCompile(`(?m)to (\d+)`)
 
 func byteToInt(in byte) int {
 
@@ -34,25 +28,6 @@ func strToInt(in string) int {
 	return -1
 }
 
-func computeDistance(hX, hY, tX, tY int) int {
-	if hX == tX {
-		return int(math.Abs(float64(tY) - float64(hY)))
-	} else if hY == tY {
-		return int(math.Abs(float64(tX) - float64(hX)))
-	} else {
-		return int(math.Sqrt(float64(hX)*float64(tX) + float64(hY)*float64(tY)))
-	}
-}
-
-type Passes map[int]map[int]bool
-
-func (p Passes) set(x, y int) {
-	if _, ok := p[x]; !ok {
-		p[x] = map[int]bool{}
-	}
-	p[x][y] = true
-}
-
 func main() {
 	readFile, err := os.Open("input.txt")
 
@@ -63,40 +38,61 @@ func main() {
 
 	fileScanner.Split(bufio.ScanLines)
 
-	fmt.Println("------------\n\n\n")
-
-	lines := make([]string, 0)
-	tX := 0
-	tY := 0
-
-	alreadyPassed := make(Passes, 0)
-	alreadyPassed.set(tX, tY)
+	fmt.Print("------------\n\n\n")
 
 	x := 1
 	cycle := 1
 	totStrength := 0
+
+	display := ""
 	for fileScanner.Scan() {
+		fmt.Printf("Sprite %d\n", x)
 		line := fileScanner.Text()
-		lines = append(lines, line)
+
+		cursor := (cycle - 1) % 40
+		if cursor == 0 {
+			display += "\n"
+		}
+		if cursor <= x+1 && cursor >= x-1 {
+			display += "#"
+		} else {
+			display += "."
+		}
+		cycle++
 
 		if line == "noop" {
-			// fmt.Printf("Cycle %d NOOP\n", cycle)
+			fmt.Printf("Cycle %d NOOP\n", cycle)
 		} else {
-			cycle++
 
+			fmt.Printf("Cycle %d\n", cycle)
+			cursor := (cycle - 1) % 40
+			fmt.Printf("Cursor %d\n", cursor)
+			if cursor == 0 {
+				display += "\n"
+			}
+			if cursor <= x+1 && cursor >= x-1 {
+				display += "#"
+			} else {
+				display += "."
+			}
+			fmt.Println(display)
 			if (cycle-20)%40 == 0 {
-				fmt.Printf("Cycles %d\n", cycle)
+				// fmt.Printf("Cycles %d\n", cycle)
 
 				totStrength += x * cycle
 			}
+			cycle++
 			amount := strToInt(line[5:])
 			x += amount
+			fmt.Printf("Sprite %d\n", x)
 		}
-		cycle++
+
 		if (cycle-20)%40 == 0 {
-			fmt.Printf("Cycles %d\n", cycle)
+			// fmt.Printf("Cycles %d\n", cycle)
 			totStrength += x * cycle
 		}
+		fmt.Println(display)
+		fmt.Println("~~~")
 	}
 
 	fmt.Printf("Total %d\n", totStrength)
